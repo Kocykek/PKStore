@@ -1,0 +1,2 @@
+# PKStore
+Projekt sklepu internetowego.
