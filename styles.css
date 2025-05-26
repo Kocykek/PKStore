@@ -1,0 +1,229 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    min-height: calc(100vh - 70px); /* Full height minus navbar */
+    flex-direction: column;  /* Stack elements vertically */
+    text-align: center;
+    background-repeat: repeat-y;        /* Repeat only vertically */
+    background-size: cover;             /* Cover full width (horizontal stretch) */
+    background-position: top center;    /* Start from top center */
+    background-attachment: scroll;      /* Optional: scrolls with page */
+    background: #847577;
+}
+
+#topMenu {
+    position: fixed; 
+    display: flex;
+    align-items: center;
+    z-index: 999;
+    width: 100%;
+    justify-content: space-between;
+    background-color: #847577;
+    color: white;
+    font-family: Arial, sans-serif;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+#topMenuPadding
+{
+    padding: 10px 20px;
+}
+#topMenu a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 10px;
+}
+
+#topMenu form {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+#topMenu input[type="text"]
+{
+    width: 500px;
+}
+
+#topMenu input[type="text"],
+#topMenu select {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    border: none;
+    background-color: #f4f3ee;
+}
+
+
+
+#topMenu input[type="submit"] {
+    background-color: #c1564c;
+    color: white;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+#topMenu input[type="submit"]:hover {
+    background-color: #fe8a7d;
+}
+
+@media (max-width: 768px) {
+    #topMenu {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #topMenu form {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    #topMenu a {
+        margin: 5px 0;
+    }
+}
+
+#allCategoriesWrapper {
+background: #fbfbf2;
+  width: 100%;
+  margin: 55px auto 0 auto;  /* centers this wrapper horizontally */
+  overflow: hidden;          /* clears floats inside */
+  text-align: center;        /* optional, for inline or inline-block children */
+  float: left;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1em;
+  padding-bottom: 20px;
+}
+
+#allCategoriesWrapper .box {
+  float: left;
+  width: 120px;
+  height: 160px;
+  margin: 16px;
+  border-radius: 0 25px 0 25px;
+  padding: 5px;
+  font-weight: bold;
+  color: rgb(255, 255, 255);
+  background-color: #fe8a7d;
+  /* no text-align needed here */
+}
+#allCategoriesWrapper .box:hover
+{
+    background-color: #c1564c;
+
+}
+#allCategories {
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    margin-top: 32px;
+}
+
+#allCategoriesWrapper #boxImage {
+  width: 100%;
+  height: 100px;
+  object-fit: cover; /* crops image nicely if aspect ratios differ */
+  display: block;
+  margin-bottom: 5px;
+}
+
+#allCategoriesWrapper #boxImage img
+{
+    object-fit: cover;
+    border-radius: 25px;
+    border: 3px solid white;
+}
+#boxText
+{
+    margin-Top: 12px;
+    align-items: center;
+    display: flex;
+    height: 38px;
+    justify-content: center;
+    color: #ffffff;
+}
+#bannerContainer
+{
+    float: left;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-color: #847577;
+}
+#bannerContainer img
+{
+    width: 50%;
+    margin: 20px;
+    
+}
+#recommendedOffers
+{
+    width: 100%;
+    height: 1000px;
+    background-color: #fbfbf2;
+}
+#userPanel
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+#userPanel img
+{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+#userPanel:hover
+{
+    color: #ffe3b5;
+}
+
+#loginContainer, #registerContainer
+{
+    margin-top: 50px;
+    color: white;
+}
+#loginContainer button, #registerContainer button
+{
+    margin-top: 15px;
+    border: 2px solid white;
+    font-weight: bold;
+    font-size: 15px;
+    background-color: #dfe0df;
+    border: none;
+    padding: 5px;
+}
+#loginContainer button:hover, #registerContainer button:hover
+{
+    background-color: white;
+}
+#loginContainer a,#registerContainer a
+{
+    text-decoration: none;
+    color: #ff8b5d;
+    font-weight: bold;
+}
+#formThingy
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#registerContainer form,#loginContainer form
+{
+    text-align: right;
+    font-size: 23px;
+}
