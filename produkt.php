@@ -1,16 +1,46 @@
 <?php
-session_start();
+// produkt.php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+$conn = new mysqli("localhost", "root", "newpassword", "pkstore");
+if ($conn->connect_error) {
+    die("Błąd połączenia: " . $conn->connect_error);
+}
+
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    echo "Nieprawidłowe ID produktu.";
+    exit;
+}
+$productId = intval($_GET['id']);
+
+$stmt = $conn->prepare("
+    SELECT p.*, u.email AS sprzedajacy_email, p.id_sprzedajacego
+    FROM produkty p 
+    LEFT JOIN uzytkownicy u ON p.id_sprzedajacego = u.id 
+    WHERE p.id = ?
+");
+$stmt->bind_param("i", $productId);
+$stmt->execute();
+$result76 = $stmt->get_result();
+
+if ($result76->num_rows === 0) {
+    echo "Produkt nie znaleziony.";
+    exit;
+}
+
+$row76 = $result76->fetch_assoc();
+$image76 = !empty($row76['zdjecie']) ? htmlspecialchars($row76['zdjecie']) : 'unknown.jpg';
 ?>
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PKStore - profil użytkownika</title>
+    <meta charset="UTF-8">
+    <title><?= htmlspecialchars($row76['nazwa']) ?> - Szczegóły Produktu</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="topMenu">
+<div id="topMenu">
         <a href="index.php"><img src="images/logo.png" width='100'></a>
         <form method="GET" action="wyszukaj.php">
     <input type="text" name="title" placeholder="Wyszukaj produkt po tytule...">
@@ -44,7 +74,8 @@ session_start();
 session_start();
 
 $cartCount = 0;
-
+$userId = $_SESSION['user_id'] ?? null;
+$isSeller = ($userId !== null && $userId == $row76['id_sprzedajacego']);
 if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
     $conn = new mysqli("localhost", "root", "newpassword", "pkstore");
@@ -101,22 +132,36 @@ if (isset($_SESSION['user_imie'])) {
 
 
     </div>
+    <div id="productPanelWrapper">
+<div id="productPanel">
+    <img src="images/produkty/<?= $image76 ?>" width='200' alt="Zdjęcie produktu">
 
+    <div id="productTitle"><?= htmlspecialchars($row76['nazwa']) ?></div>
+    <div id="productPrice"><?= htmlspecialchars($row76['cena']) ?> zł</div>
 
+    <div id="productDescription">
+        <?= !empty($row76['opis']) ? nl2br(htmlspecialchars($row76['opis'])) : "Brak opisu produktu." ?>
     </div>
-    <?php if (isset($_SESSION['user_email'])): ?>
-    <div id="userContainerPanelProfileWrapper">
-		<div id="userContainerPanelProfile">
-			<p><strong><a href="dodaj_produkt.php">Dodaj produkt</a></strong></p>
-        <p><strong>Email:</strong> <?php echo htmlspecialchars($_SESSION['user_email']); ?></p>
-        <p><strong>Imię:</strong> <?php echo htmlspecialchars($_SESSION['user_imie']); ?></p>
-        <p><strong>Nazwisko:</strong> <?php echo htmlspecialchars($_SESSION['user_nazwisko']); ?></p>
-        <p><strong>Rola:</strong> <?php echo htmlspecialchars($_SESSION['user_rola']); ?></p>
-        <p><a href="logout.php">Wyloguj się</a></p>
-        </div>
-        </div>
+
+    <div id="sellerInfo">
+        Sprzedający: 
+        <?= htmlspecialchars($row76['sprzedajacy_email']) ?>
+    </div>
+
+<form id="buyForm" method="post" action="dodaj_do_koszyka.php">
+    <input type="hidden" name="product_id" value="<?= $row76['id'] ?>">
+
+    <?php if (!$isSeller): ?>
+    Ilość: 
+    <input type="number" name="quantity" value="1" min="1"> 
+        <input type="submit" name="action" value="Dodaj do koszyka">
+        <input type="submit" name="action" value="Kup teraz">
     <?php else: ?>
-        <p>Nie jesteś zalogowany. <a href="login.php">Zaloguj się</a></p>
+        <p><em>Jesteś sprzedającym tego produktu.</em></p>
     <?php endif; ?>
+</form>
+
+</div>
+</div>
 </body>
 </html>
