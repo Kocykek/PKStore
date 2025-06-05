@@ -84,7 +84,7 @@ if ($cartCount > 0) {
 }
 echo '</a>';
 
-// User greeting or login link
+
 if (isset($_SESSION['user_imie'])) {
     $imie = htmlspecialchars($_SESSION['user_imie']);
     echo "<a href='uzytkownik.php'><div id='userPanel'>Witaj, $imie! <img src='images/uzytkownik.jpg' width='50' alt='znany użytkownik'></div></a>";

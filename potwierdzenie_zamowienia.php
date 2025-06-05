@@ -212,6 +212,6 @@ unset($_SESSION['cart']);
 $conn->close();
 
 ?>
-</div></div>
+</div></div> 	
 </body>
 </html>

@@ -25,9 +25,13 @@
             $result = $conn->query("SELECT nazwa FROM kategorie");
 
             if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    echo "<option value='" . htmlspecialchars($row['nazwa']) . "'>" . htmlspecialchars($row['nazwa']) . "</option>";
-                }
+                $selectedCategory = isset($_GET['category']) ? $_GET['category'] : '';
+
+while ($row = $result->fetch_assoc()) {
+    $categoryName = htmlspecialchars($row['nazwa']);
+    $isSelected = ($categoryName === $selectedCategory) ? 'selected="selected"' : '';
+    echo "<option value='$categoryName' $isSelected>$categoryName</option>";
+}
             } else {
                 echo "<option>Brak kategorii</option>";
             }

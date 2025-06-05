@@ -446,6 +446,8 @@ padding: 25px;
   #priceForProduct
   {
   font-size: 20px;
+  margin-left: -50px;
+  margin-top: 20px;
   }
   #produktyContainerWyszukaj,#userContainerPanelProfileWrapper,#finalizationContainerWrapper
   {

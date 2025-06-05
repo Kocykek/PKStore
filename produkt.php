@@ -163,5 +163,7 @@ if (isset($_SESSION['user_imie'])) {
 
 </div>
 </div>
+<br><hr>
+PKStore &copy;
 </body>
 </html>

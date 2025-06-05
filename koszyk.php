@@ -3,7 +3,7 @@ session_start();
 
 $cart = [];
 
-// Fetch cart (session or DB)
+
 if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
     $conn = new mysqli("localhost", "root", "newpassword", "pkstore");
@@ -24,7 +24,6 @@ if (isset($_SESSION['user_id'])) {
     $cart = $_SESSION['cart'] ?? [];
 }
 
-// Now get product details
 $productDetails = [];
 if (!empty($cart)) {
     $ids = implode(',', array_map('intval', array_keys($cart)));
@@ -84,7 +83,7 @@ session_start();
 $cartCount = 0;
 
 if (isset($_SESSION['user_id'])) {
-    // Logged in: fetch cart count from DB
+
     $userId = $_SESSION['user_id'];
     $conn = new mysqli("localhost", "root", "newpassword", "pkstore");
     if ($conn->connect_error) {
@@ -102,7 +101,7 @@ if (isset($_SESSION['user_id'])) {
     $conn->close();
 
 } else {
-    // Not logged in: use session cart
+
     if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         foreach ($_SESSION['cart'] as $qty) {
             $cartCount += $qty;
@@ -128,7 +127,7 @@ if ($cartCount > 0) {
 }
 echo '</a>';
 
-// User greeting or login link
+
 if (isset($_SESSION['user_imie'])) {
     $imie = htmlspecialchars($_SESSION['user_imie']);
     echo "<a href='uzytkownik.php'><div id='userPanel'>Witaj, $imie! <img src='images/uzytkownik.jpg' width='50' alt='znany użytkownik'></div></a>";

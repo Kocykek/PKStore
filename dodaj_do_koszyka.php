@@ -108,6 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Optional: Redirect to cart page
+
 header("Location: koszyk.php");
 exit;
