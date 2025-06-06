@@ -60,51 +60,96 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['cart']) && !isset($_SESSION[
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productId = intval($_POST['product_id'] ?? 0);
-    $quantity = max(1, intval($_POST['quantity'] ?? 1));
+    $quantityToAdd = max(1, intval($_POST['quantity'] ?? 1));
 
     if ($productId > 0) {
         if (!isset($_SESSION['cart'])) {
             $_SESSION['cart'] = [];
         }
 
-        // dodaj do koszyka
-        if (isset($_SESSION['cart'][$productId])) {
-            $_SESSION['cart'][$productId] += $quantity;
-        } else {
-            $_SESSION['cart'][$productId] = $quantity;
+        $conn = getDbConnection();
+
+        // Pobierz ilość dostępnych sztuk produktu z tabeli produkty
+        $stmt = $conn->prepare("SELECT ilosc FROM produkty WHERE id = ?");
+        $stmt->bind_param("i", $productId);
+        $stmt->execute();
+        $stmt->bind_result($availableQty);
+        if (!$stmt->fetch()) {
+            $stmt->close();
+            $conn->close();
+            die("Produkt nie znaleziony.");
         }
+        $stmt->close();
+
+        // Obecna ilość w sesji
+        $currentSessionQty = $_SESSION['cart'][$productId] ?? 0;
+
+        // Obecna ilość w bazie (jeśli zalogowany)
+        $currentDbQty = 0;
+        if (isset($_SESSION['user_id'])) {
+            $userId = $_SESSION['user_id'];
+            $stmt = $conn->prepare("SELECT ilosc FROM koszyk WHERE id_uzytkownika = ? AND id_produktu = ?");
+            $stmt->bind_param("ii", $userId, $productId);
+            $stmt->execute();
+            $stmt->bind_result($currentDbQty);
+            $stmt->fetch();
+            $stmt->close();
+        }
+
+        // Oblicz nową łączną ilość (sesja + baza + dodawana)
+        $totalQty = $currentSessionQty + $currentDbQty + $quantityToAdd;
+
+        // Ogranicz ilość do dostępnej w magazynie
+        if ($totalQty > $availableQty) {
+            $totalQty = $availableQty;
+        }
+
+        // Oblicz ile dodać do sesji (bo baza zawiera już $currentDbQty)
+        $quantityToStoreInSession = $totalQty - $currentDbQty;
+        if ($quantityToStoreInSession < 0) {
+            $quantityToStoreInSession = 0;
+        }
+
+        // Zaktualizuj sesję
+        $_SESSION['cart'][$productId] = $quantityToStoreInSession;
 
         echo "Added to session cart.<br>";
 
-        // jesli zalogowany!
+        // Aktualizuj bazę jeśli zalogowany
         if (isset($_SESSION['user_id'])) {
-            $conn = getDbConnection();
-
-            $stmt = $conn->prepare("SELECT ilosc FROM koszyk WHERE id_uzytkownika = ? AND id_produktu = ?");
-            $stmt->bind_param("ii", $_SESSION['user_id'], $productId);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $row = $result->fetch_assoc();
-                $newQuantity = $row['ilosc'] + $quantity;
-
-                $updateStmt = $conn->prepare("UPDATE koszyk SET ilosc = ?, data_dodania = NOW() WHERE id_uzytkownika = ? AND id_produktu = ?");
-                $updateStmt->bind_param("iii", $newQuantity, $_SESSION['user_id'], $productId);
-                $updateStmt->execute();
-                $updateStmt->close();
-                echo "UPDATE successful.<br>";
+            if ($totalQty == 0) {
+                // Usuń z bazy jeśli ilość 0
+                $delStmt = $conn->prepare("DELETE FROM koszyk WHERE id_uzytkownika = ? AND id_produktu = ?");
+                $delStmt->bind_param("ii", $userId, $productId);
+                $delStmt->execute();
+                $delStmt->close();
+                echo "Removed product from database (quantity 0).<br>";
             } else {
-                $insertStmt = $conn->prepare("INSERT INTO koszyk (id_uzytkownika, id_produktu, ilosc, data_dodania) VALUES (?, ?, ?, NOW())");
-                $insertStmt->bind_param("iii", $_SESSION['user_id'], $productId, $quantity);
-                $insertStmt->execute();
-                $insertStmt->close();
-                echo "INSERT successful.<br>";
-            }
+                // Sprawdź czy jest wpis, zaktualizuj lub dodaj
+                $stmt = $conn->prepare("SELECT ilosc FROM koszyk WHERE id_uzytkownika = ? AND id_produktu = ?");
+                $stmt->bind_param("ii", $userId, $productId);
+                $stmt->execute();
+                $stmt->store_result();
 
-            $stmt->close();
-            $conn->close();
+                if ($stmt->num_rows > 0) {
+                    $stmt->close();
+                    $updateStmt = $conn->prepare("UPDATE koszyk SET ilosc = ?, data_dodania = NOW() WHERE id_uzytkownika = ? AND id_produktu = ?");
+                    $updateStmt->bind_param("iii", $totalQty, $userId, $productId);
+                    $updateStmt->execute();
+                    $updateStmt->close();
+                    echo "UPDATE successful.<br>";
+                } else {
+                    $stmt->close();
+                    $insertStmt = $conn->prepare("INSERT INTO koszyk (id_uzytkownika, id_produktu, ilosc, data_dodania) VALUES (?, ?, ?, NOW())");
+                    $insertStmt->bind_param("iii", $userId, $productId, $totalQty);
+                    $insertStmt->execute();
+                    $insertStmt->close();
+                    echo "INSERT successful.<br>";
+                }
+            }
         }
+
+        $conn->close();
     }
 }
 

@@ -9,6 +9,23 @@ if ($conn->connect_error) {
 $productId = intval($_POST['product_id']);
 $newQty = intval($_POST['quantity']);
 
+$stmt = $conn->prepare("SELECT ilosc FROM produkty WHERE id = ?");
+$stmt->bind_param("i", $productId);
+$stmt->execute();
+$stmt->bind_result($availableQty);
+if (!$stmt->fetch()) {
+
+    $stmt->close();
+    $conn->close();
+    die("Produkt nie znaleziony.");
+}
+$stmt->close();
+
+
+if ($newQty > $availableQty) {
+    $newQty = $availableQty;
+}
+
 if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
 

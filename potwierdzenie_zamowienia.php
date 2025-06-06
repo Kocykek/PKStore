@@ -184,7 +184,14 @@ if ($stmt->execute()) {
     foreach ($cart as $productId => $quantity) {
         $stmtDetails->bind_param("iii", $orderId, $productId, $quantity);
         $stmtDetails->execute();
-    }
+
+        // Aktualizacja ilości produktu w magazynie
+        $stmtUpdate = $conn->prepare("UPDATE produkty SET ilosc = ilosc - ? WHERE id = ?");
+        $stmtUpdate->bind_param("ii", $quantity, $productId);
+        $stmtUpdate->execute();
+        $stmtUpdate->close();
+}
+
     $stmtDetails->close();
 
     unset($_SESSION['cart']);

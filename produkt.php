@@ -138,6 +138,10 @@ if (isset($_SESSION['user_imie'])) {
 
     <div id="productTitle"><?= htmlspecialchars($row76['nazwa']) ?></div>
     <div id="productPrice"><?= htmlspecialchars($row76['cena']) ?> zł</div>
+    <div id="productQuantity" style="font-weight: bold; font-size: 20px;">
+    Ilość dostępna: <?= htmlspecialchars($row76['ilosc']) ?>
+</div>
+
 
     <div id="productDescription">
         <?= !empty($row76['opis']) ? nl2br(htmlspecialchars($row76['opis'])) : "Brak opisu produktu." ?>
